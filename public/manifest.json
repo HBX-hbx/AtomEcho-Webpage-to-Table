@@ -10,7 +10,7 @@
     "128": "images/icon-128.png"
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "scripts/background.js"
   },
   "action": {
     "default_popup": "index.html",
@@ -24,18 +24,22 @@
   },
   "permissions": [
     "scripting",
-    "activeTab"
+    "activeTab",
+    "tabs"
   ],
   "host_permissions": [
-    "https://meta.atomecho.cn/*"
+    "<all_urls>"
   ],
   "content_scripts": [
     {
       "js": ["scripts/content.js"],
       "matches": [
-        "https://developer.chrome.com/docs/extensions/*",
-        "https://developer.chrome.com/docs/webstore/*"
+        "https://*/*",
+        "http://*/*"
       ]
     }
+  ],
+  "web_accessible_resources": [
+    "scripts/inject.js"
   ]
 }

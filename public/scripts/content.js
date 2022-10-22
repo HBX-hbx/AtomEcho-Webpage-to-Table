@@ -1,22 +1,23 @@
-const article = document.querySelector("article");
+console.log('<----- Content script started running ----->');
 
-// `document.querySelector` may return null if the selector doesn't match anything.
-if (article) {
-    const text = article.textContent;
-    const wordMatchRegExp = /[^\s]+/g; // Regular expression
-    const words = text.matchAll(wordMatchRegExp);
-    // matchAll returns an iterator, convert to array to get word count
-    const wordCount = [...words].length;
-    const readingTime = Math.round(wordCount / 200);
-    const badge = document.createElement("p");
-    // Use the same styling as the publish information in an article's header
-    badge.classList.add("color-secondary-text", "type--caption");
-    badge.textContent = `⏱️ ${readingTime} min read`;
-
-    // Support for API reference docs
-    const heading = article.querySelector("h1");
-    // Support for article docs with date
-    const date = article.querySelector("time")?.parentNode;
-
-    (date ?? heading).insertAdjacentElement("afterend", badge);
+function injectScript(file_path, tag) {
+    const node = document.getElementsByTagName(tag)[0];
+    const script = document.createElement('script');
+    script.setAttribute('type', 'text/javascript');
+    script.setAttribute('src', file_path);
+    node.appendChild(script);
 }
+
+injectScript(chrome.extension.getURL('inject.js'), 'body');
+
+// receiving data from inject.js and
+// sending data to background page using the runtime api
+window.addEventListener("message", function (event) {
+    // only accept messages from the current tab
+    if (event.source !== window)
+        return;
+
+    if (event.data.type && (event.data.type === "FROM_PAGE") && typeof chrome.app.isInstalled !== 'undefined') {
+        chrome.runtime.sendMessage({ essential: event.data.essential });
+    }
+}, false);
