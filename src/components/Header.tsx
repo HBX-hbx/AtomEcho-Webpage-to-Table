@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import './Header.css'
 import Button from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
+import { load_table_from_html } from "../api/home";
 
 export default function Header () {
 
@@ -27,6 +28,12 @@ export default function Header () {
          */
         const rawHTML = resp[0].result;
         console.log(rawHTML);
+        load_table_from_html({
+          data: rawHTML,
+          table_name: curTab.title
+        }).then((res: any) => {
+          console.log('请求成功');
+        })
       }
     })
     // enter AtomEcho meta page
@@ -51,7 +58,7 @@ export default function Header () {
         startIcon={<AddIcon />}
         style={{textAlign: "center"}}
       >
-        新建表
+        获取本网页表格
       </Button>
     </header>
   )
