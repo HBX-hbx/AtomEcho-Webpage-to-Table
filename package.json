@@ -22,6 +22,7 @@
     "react-dom": "^18.2.0",
     "react-redux": "^7.2.5",
     "react-scripts": "5.0.1",
+    "react-window": "^1.8.7",
     "redux": "^4.2.0",
     "typescript": "^4.8.4",
     "web-vitals": "^2.1.4"
@@ -53,6 +54,7 @@
   "devDependencies": {
     "@types/chrome": "^0.0.199",
     "@types/js-cookie": "^3.0.2",
+    "@types/react-window": "^1.8.5",
     "js-cookie": "^3.0.1"
   }
 }
