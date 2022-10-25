@@ -52,7 +52,7 @@ export default function Body () {
     console.log('tab:\n', curTab)
     console.log('rawHTML:\n', rawHTML)
     submit_content_record({
-      table_uid: tableData[index],
+      table_uid: tableData[index].table_uid,
       name: curTab.title,
       data: rawHTML
     }).then((res: any) => {
