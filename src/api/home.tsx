@@ -17,6 +17,7 @@ export function submit_content_record(data: any) {
   // params example {
   //    table_uid: ''
   //    name: ''
+  //    source: 'html'
   //    data: '<HTML> string'
   // }
   return request.post('/api/filltable/submit_content_record', data);

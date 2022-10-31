@@ -83,6 +83,7 @@ export default function Body () {
     submit_content_record({
       table_uid: tableData[index].table_uid,
       name: curTab.title,
+      source: 'html',
       data: rawHTML
     }).then((res: any) => {
 
