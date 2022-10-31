@@ -37,16 +37,33 @@ const tabSlice = createSlice({
   }
 })
 
+const tableSlice = createSlice({
+  name: 'tableSlice',
+  initialState: {
+    tableData: JSON.stringify([]),
+  },
+  reducers: {
+    updateTableData: (state, action) => {
+      state.tableData = action.payload;
+    }
+  }
+})
+
 export const { updateTokenState } = userSlice.actions;
 export const { updateCurTab, updateRawHTML } = tabSlice.actions;
-
+export const { updateTableData } = tableSlice.actions;
+// userSlice
 export const getTokenState = (state: any) => state.user.token
+// tabSlice
 export const getCurTabState = (state: any) => state.tab.curTab
 export const getRawHTMLState = (state: any) => state.tab.rawHTML
+// tableSlice
+export const getTableDataState = (state: any) => state.table.tableData
 
 export default configureStore({
   reducer: {
     user: userSlice.reducer,
-    tab: tabSlice.reducer
+    tab: tabSlice.reducer,
+    table: tableSlice.reducer,
   },
 })
