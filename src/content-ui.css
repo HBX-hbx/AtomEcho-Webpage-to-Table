@@ -1,0 +1,73 @@
+@import url('./variables.css');
+
+.content-panel-frame {
+    border: none;
+    border-radius: 10px;
+    box-shadow: -4px 4px 16px rgba(0, 0, 0, 0.15), -4px 4px 0px rgba(0, 0, 0, 0.1);
+    margin-right: 12px;
+    pointer-events: auto;
+}
+
+.placeholder-dialog,
+.variable-label-dialog,
+.delete-all-variables-dialog,
+.guided-transfers-dialog,
+.variables-onboarding-dialog,
+.modified-variables-dialog {
+    border: none;
+    padding: 0;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 2147483648;
+    background: none transparent;
+}
+
+.placeholder-frame,
+.variable-label-frame,
+.guided-transfers-frame,
+.modified-variables-frame {
+    margin: 0;
+    box-shadow: none;
+}
+
+.variable-label-frame,
+.guided-transfers-frame {
+    /* Override auto-height so there is room for the dropdown to appear. */
+    height: 100vh !important;
+}
+
+.variable-label-frame,
+.guided-transfers-frame,
+.modified-variables-frame {
+    width: 100vw;
+}
+
+.placeholder-frame {
+    width: 400px;
+    max-height: 80vh;
+}
+
+.variables-onboarding-frame {
+    width: 800px;
+    max-height: 600px;
+}
+
+/** Dropdown onboarding panel */
+#dropdown-variable-help-container {
+    /** Reference point so that #dropdown-variable-help-panel is positioned properly relative to the document origin */
+    position: absolute;
+    left: 10px;
+    top: 0;
+    z-index: 10;
+}
+
+#dropdown-variable-help-panel {
+    margin-left: var(--magical-dropdown-max-width);
+}
+
+.dropdown-variable-help-frame {
+    width: 250px;
+}

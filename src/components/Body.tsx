@@ -1,5 +1,4 @@
-import React from 'react';
-import './Header.css'
+import * as React from 'react';
 import {useDispatch, useSelector} from "react-redux";
 import ArticleIcon from '@mui/icons-material/Article';
 import TableViewIcon from '@mui/icons-material/TableView';
@@ -10,22 +9,32 @@ import {
   Snackbar,
   List,
   Box,
+  IconButton,
   styled,
   ListItem,
   SpeedDial,
   Typography,
+  Tooltip,
   ListItemIcon,
   ListItemText,
   ListItemButton,
+  Backdrop,
   SpeedDialIcon,
   SpeedDialAction
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import {getCurTabState, getRawHTMLState, getTableDataState, updateTableData, updateTokenState} from "../store/store";
+import {
+  getCurTabState,
+  getRawHTMLState,
+  getTableDataState, updateCurTab,
+  updateRawHTML,
+  updateTableData,
+  updateTokenState
+} from "../store/store";
 import {get_all_table_data, set_listened_urls, submit_content_record} from "../api/home";
 import SetURLPrefixDialog from "./SetURLPrefixDialog";
 import {setToken, TokenKey} from "../utils/auth";
-import AddIcon from "@mui/icons-material/Add";
+import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import LoadingButton from "@mui/lab/LoadingButton";
 
 const StyledSpeedDial = styled(SpeedDial)(({ theme }) => ({
@@ -37,13 +46,122 @@ const StyledSpeedDial = styled(SpeedDial)(({ theme }) => ({
   '& .MuiFab-primary': {
     '& .MuiSpeedDialIcon-icon': { fontSize: 20 },
     width: 35,
-    height: 35
+    height: 35,
   }
 }));
 
 const actions = [
   { icon: <EditIcon />, name: '编辑' },
+  { icon: <ArrowOutwardIcon />, name: '跳转' },
 ];
+
+interface RenderRowProps {
+  table: any,
+  index: number,
+  handleTableClick: (index: number) => Promise<void>;
+  handleSetURLPrefixClick: (event: any, index: number) => void;
+}
+
+export function RenderRow(props: RenderRowProps) {
+
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleTableClick = () => {
+    setLoading(true);
+    props.handleTableClick(props.index).then(() => {
+      setLoading(false);
+    });
+  }
+
+  const handleTableActionClick = (event: any, index: number) => {
+    switch (index) {
+      case 0: // 编辑
+        props.handleSetURLPrefixClick(event, props.index);
+        break;
+      case 1: // 跳转
+        window.open('https://meta.atomecho.cn/tables/' + props.table.table_uid);
+        break;
+      default:
+        break;
+    }
+  }
+
+  return (
+    <ListItem
+      disablePadding
+      style={{
+        position: 'relative',
+        borderRadius: '10px',
+      }}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <LoadingButton
+        onClick={handleTableClick}
+        loadingPosition="start"
+        loading={loading}
+        fullWidth
+        startIcon={
+          (() => {
+            switch (props.table.table_type) {
+              case 'SourceType_WebTable':
+                return <TableViewIcon />
+              case 'SourceType_Doc':
+                return <ArticleIcon />
+              case 'SourceType_Net':
+                return <LanguageIcon />
+            }
+          })()
+        }
+        style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}
+      >
+        <ListItemText primary={
+          <React.Fragment>
+            <Typography
+              sx={{ display: 'inline-block', width: '100%'}}
+              component="span"
+              variant="body2"
+              align="justify"
+              noWrap
+              color="text.primary"
+            >
+              {props.table.table_name}
+            </Typography>
+          </React.Fragment>
+        }/>
+      </LoadingButton>
+      {/*<StyledSpeedDial*/}
+      {/*  ariaLabel="SpeedDial playground example"*/}
+      {/*  icon={<SpeedDialIcon />}*/}
+      {/*  direction='left'*/}
+      {/*  open={open}*/}
+      {/*  onClick={(event) => event.stopPropagation()}*/}
+      {/*>*/}
+      {/*  {actions.map((action, index: number) => (*/}
+      {/*    <SpeedDialAction*/}
+      {/*      key={action.name}*/}
+      {/*      icon={action.icon}*/}
+      {/*      tooltipTitle={action.name}*/}
+      {/*      onClick={(event) => handleTableActionClick(event, index)}*/}
+      {/*    />*/}
+      {/*  ))}*/}
+      {/*</StyledSpeedDial>*/}
+      <Box style={{display: 'flex', flexDirection: 'row'}}>
+        <Tooltip title="编辑" placement="top">
+          <IconButton color="primary" aria-label="edit" onClick={(event) => handleTableActionClick(event, 0)}>
+            <EditIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="跳转" placement="top">
+          <IconButton color="secondary" aria-label="jump" onClick={(event) => handleTableActionClick(event, 1)}>
+            <ArrowOutwardIcon />
+          </IconButton>
+        </Tooltip>
+      </Box>
+    </ListItem>
+  )
+}
 
 export default function Body () {
 
@@ -75,36 +193,32 @@ export default function Body () {
     }
     setOpenMsg(false);
   };
-  const handleTableClick = (index: number, tableData: any, rawHTML: string, curTab: any) => {
+  const handleTableClick = async (index: number, tableData: any, rawHTML: string, curTab: any) => {
     setCurTableIndex(index);
-    tableData[index].loading = true;
-    dispatch(updateTableData(JSON.stringify(tableData)));
-
-    submit_content_record({
+    const res: any = await submit_content_record({
       table_uid: tableData[index].table_uid,
       name: curTab.title,
       source: 'html',
       data: rawHTML
-    }).then((res: any) => {
-
-      tableData[index].loading = false;
-      dispatch(updateTableData(JSON.stringify(tableData)));
-
-      switch (res.code) {
-        case 2000:
-          setMsg(res.msg);
-          setSeverity('success');
-          break;
-        case 4000:
-          setMsg(res.msg);
-          setSeverity('error');
-          break;
-        default:
-          break;
-      }
-      setOpenMsg(true);
     })
+
+    switch (res.code) {
+      case 2000:
+        setMsg(res.msg);
+        setSeverity('success');
+        break;
+      case 4000:
+        setMsg(res.msg);
+        setSeverity('error');
+        break;
+      default:
+        setMsg(res.msg);
+        setSeverity('error');
+        break;
+    }
+    setOpenMsg(true);
   }
+
   const handleSetURLPrefixClick = (event: any, index: number) => {
     setOpenURLPrefixDialog(true);
     setCurTableIndex(index);
@@ -137,43 +251,48 @@ export default function Body () {
     }).then(res => {
       console.log('=========== getting all table data ===============')
       let tmpTableData = res.data.data.table_uids.map((item: any) => {
-        item['loading'] = false;
+        // item['loading'] = false;
         return item;
       }).filter((item: any) => item.table_type === 'SourceType_Doc')
       console.log('tableData:\n', tmpTableData);
       dispatch(updateTableData(JSON.stringify(tmpTableData)));
-      chrome.runtime.sendMessage({'tableData': tmpTableData})
+      // set table data to background
+      let event = new CustomEvent('SET_TABLE_DATA', {
+        detail: tmpTableData,
+      });
+      window.dispatchEvent(event);
     })
   }
   // 登录
   useEffect(() => {
-    chrome.runtime.onMessage.addListener(msg => {
-      console.log('========= Popup: receiving msg from runtime ============');
-      dispatch(updateTableData(JSON.stringify(msg.tableData)));
-      msg.triggeredTableIdxList.forEach((item: number) => {
-        handleTableClick(item, msg.tableData, msg.rawHTML, msg.curTab);
-      })
-    })
-    chrome.cookies.get({
-      "url": 'https://meta.atomecho.cn/',
-      "name": TokenKey
-    }).then((cookie: any) => {
-      if (cookie) {
-        dispatch(updateTokenState(cookie.value))
-        setToken(cookie.value)
+    let event = new CustomEvent('LOGIN');
+    window.dispatchEvent(event);
+    window.addEventListener('RECEIVE_COOKIE', (event: any) => {
+      // do something cool with event.data
+      console.log('========= Page: receiving msg from content ============');
+      console.log('detail:\n', event.detail);
+      if (event.detail.cookie) {
+        dispatch(updateTokenState(event.detail.cookie.value))
+        setToken(event.detail.cookie.value)
         setSeverity('success')
         setMsg('登录成功！')
         setOpenMsg(true); // 反馈：请求成功
         // 加载表格数据
         loadTableData();
-      } else {
-        setSeverity('error')
-        setMsg('Ah oh！登录失败啦！请登录')
-        setOpenMsg(true);
-        // enter AtomEcho meta page
-        chrome.tabs.create({ url: "https://meta.atomecho.cn/" })
       }
     })
+
+    window.addEventListener('TAB_UPDATE', (event: any) => {
+      // do something cool with event.data
+      console.log('========= Page: receiving msg from content ============');
+      console.log('detail:\n', event.detail);
+      dispatch(updateTableData(JSON.stringify(event.detail.tableData)));
+      event.detail.triggeredTableIdxList.forEach((item: number) => {
+        console.log('triggered!\n', event.detail);
+        handleTableClick(item, event.detail.tableData, event.detail.rawHTML, event.detail.curTab);
+      })
+    })
+
   }, [])
 
   // < --------------------------------- test ----------------------------------- >
@@ -187,8 +306,8 @@ export default function Body () {
   //   return result;
   // }
   // useEffect(() => {
-  //   let tmpTableData = []
-  //   for (let i = 0; i < 1; i++){
+  //   let tmpTableData = [];
+  //   for (let i = 0; i < 100; i++){
   //     tmpTableData.push({
   //       "id": "1e5142bb-b042-4b24-89ff-139630926e50",
   //       "description": null,
@@ -220,7 +339,6 @@ export default function Body () {
   //         'https://zh.wikipedia.org/wiki/%E9%95%BF%E6%B1%9F'
   //       ],
   //       "listened": true,
-  //       "loading": false,
   //     })
   //   }
   //   dispatch(updateTableData(JSON.stringify(tmpTableData)));
@@ -228,62 +346,18 @@ export default function Body () {
   // < --------------------------------- test ----------------------------------- >
 
   const tableItems = tableData.map((table: any, index: number) =>
-    <ListItem disablePadding key={tableData[index].table_uid} id={tableData[index].table_uid}>
-      <LoadingButton
-        onClick={() => handleTableClick(index, tableData, rawHTML, curTab)}
-        loadingPosition="start"
-        loading={tableData[index].loading}
-        fullWidth
-        startIcon={
-          (() => {
-            switch (tableData[index].table_type) {
-              case 'SourceType_WebTable':
-                return <TableViewIcon />
-              case 'SourceType_Doc':
-                return <ArticleIcon />
-              case 'SourceType_Net':
-                return <LanguageIcon />
-            }
-          })()
-        }
-        style={{textAlign: "center"}}
-      >
-        <ListItemText primary={
-          <React.Fragment>
-            <Typography
-              sx={{ display: 'inline-block', width: '100%'}}
-              component="span"
-              variant="body2"
-              align="justify"
-              noWrap
-              color="text.primary"
-            >
-              {tableData[index].table_name}
-            </Typography>
-          </React.Fragment>
-        } style={{paddingRight: '40px'}}/>
-      </LoadingButton>
-      <StyledSpeedDial
-        ariaLabel="SpeedDial playground example"
-        icon={<SpeedDialIcon />}
-        direction='left'
-        onClick={(event) => event.stopPropagation()}
-      >
-        {actions.map((action) => (
-          <SpeedDialAction
-            key={action.name}
-            icon={action.icon}
-            tooltipTitle={action.name}
-            onClick={(event) => handleSetURLPrefixClick(event, index)}
-          />
-        ))}
-      </StyledSpeedDial>
-    </ListItem>
+    <RenderRow
+      key={table.table_uid}
+      table={table}
+      index={index}
+      handleTableClick={(index: number) => handleTableClick(index, tableData, rawHTML, curTab)}
+      handleSetURLPrefixClick={handleSetURLPrefixClick}
+    />
   )
 
   return (
-    <div className="mainBody">
-      <List style={{maxHeight: '293px', overflowY: "auto"}}>
+    <div style={{height: '305px', margin: '10px 0 10px 0'}}>
+      <List style={{maxHeight: '290px', overflowY: "auto"}}>
         {tableItems}
       </List>
       <Snackbar

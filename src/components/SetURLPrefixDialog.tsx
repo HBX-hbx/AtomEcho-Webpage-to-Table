@@ -1,8 +1,6 @@
 import React from 'react'
 import { ReactElement, useEffect, useState } from "react";
-import './SetURLPrefixDialog.css'
-import {useSelector} from "react-redux";
-import {getTableDataState} from "../store/store";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {
   List,
   ListItem,
@@ -78,8 +76,13 @@ export default function SetURLPrefixDialog (props: SetURLPrefixDialogProps) {
   }, [listenedURLs])
 
   const handleOK = () => {
+    let tmpListenedURLs = JSON.parse(listenedURLs);
+    if (tmpListenedURLs.indexOf(url) === -1 && url !== '') {
+      tmpListenedURLs.push(url);
+    }
+    setURL('');
     props.onClose();
-    props.onOK(auto, JSON.parse(listenedURLs));
+    props.onOK(auto, tmpListenedURLs);
   }
 
   const handleAdd = () => {
@@ -102,21 +105,28 @@ export default function SetURLPrefixDialog (props: SetURLPrefixDialogProps) {
   return (
     <div>
       <Dialog open={props.open} onClose={() => props.onClose()}>
-        <DialogTitle>设置</DialogTitle>
-        <DialogContent>
-          <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
-            <DialogContentText>
-              开启自动获取
-            </DialogContentText>
-            <Switch
+        <DialogTitle
+          style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center'}}
+          sx={{ padding: "0 20px 0 20px"}}
+        >
+          <IconButton aria-label="delete" onClick={() => props.onClose()}>
+            <ArrowBackIcon />
+          </IconButton>
+          <p style={{
+            fontFamily: '"Arial","Microsoft YaHei","黑体","宋体",sans-serif',
+            fontSize: '1rem',
+          }}>开启自动获取</p>
+          <Switch
               edge="end"
               onChange={() => setAuto(!auto)}
               checked={auto}
               inputProps={{
                 'aria-labelledby': 'switch-list-label-auto',
               }}
-            />
-          </div>
+          />
+        </DialogTitle>
+        <DialogContent sx={{ padding: "0 20px 0 20px"}}>
+
           <List
               sx={{ width: '100%', maxWidth: 300, bgcolor: 'background.paper' }}
               style={{ maxHeight: '100px', overflowY: "auto" }}
@@ -136,7 +146,6 @@ export default function SetURLPrefixDialog (props: SetURLPrefixDialogProps) {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleAdd}>添加</Button>
           <Button onClick={handleOK}>确定</Button>
           <Button onClick={() => props.onClose()}>取消</Button>
         </DialogActions>

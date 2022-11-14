@@ -1,0 +1,192 @@
+@import url('./variables.css');
+
+/**
+ * Override Reboot styles to hide the :focus outline if :focus-visible isn't true.
+ * This allows outlines to continue to work for keyboard accessibility while hiding them for clicks.
+ */
+:is(button, a):is(.primary, .secondary, .tertiary, .tertiary-muted, .actionable-icon):focus {
+    outline: none;
+}
+
+/** Begin Design System Actionable Icon Styles: https://www.figma.com/file/DDJPrpxvmMo2obrUYzCwEj/Atoms?node-id=563%3A60 */
+
+:is(button, a).actionable-icon {
+    appearance: none;
+    background: transparent;
+    border: none;
+    border-radius: 12px;
+    fill: var(--magical-gray-60);
+    color: var(--magical-gray-60);
+    line-height: 0;
+    padding: 4px;
+    cursor: pointer;
+}
+
+:is(button, a).actionable-icon:is(:focus, :hover:not(:disabled)) {
+    background: rgb(0 102 255 / 15%);
+    fill: var(--magical-primary-60);
+}
+
+:is(button, a).actionable-icon:hover:active {
+    background: var(--magical-primary-20);
+}
+
+/** Begin Design System Button Styles: https://www.figma.com/file/DDJPrpxvmMo2obrUYzCwEj/Atoms?node-id=17%3A0 */
+/** Only styles for primary/secondary/tertiary/teritary-muted buttons indepdent of their context should go here */
+
+:root {
+    --magical-button-border-width: 1px;
+}
+
+:is(button, a):is(.primary, .secondary, .tertiary, .tertiary-muted) {
+    align-items: center;
+    border: var(--magical-button-border-width) solid;
+    cursor: pointer;
+    display: inline-flex;
+    font-weight: 700;
+    justify-content: center;
+    margin: 8px 0;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+}
+
+/* :disabled isn't supported on <a>. Use <button> if you need a disabled state. */
+/* We don't just set the disabled attribute anyways since the <a> will remain in the tab order. */
+button:is(.primary, .secondary, .tertiary, .tertiary-muted, .actionable-icon):disabled {
+    cursor: default;
+    opacity: 0.4;
+}
+
+/* Buttons with an icon. <svg> Should be a direct child of the button. */
+:is(button, a):is(.primary, .secondary, .tertiary, .tertiary-muted, .actionable-icon) > svg {
+    fill: currentColor;
+    vertical-align: text-bottom;
+}
+
+:is(button, a):is(.primary, .secondary):is(:focus, :hover:not(:disabled)) {
+    box-shadow: -1px 1px 4px rgba(0, 0, 0, 0.15), -2px 2px 0px rgba(0, 0, 0, 0.1);
+}
+
+/** Primary Buttons */
+
+:is(button, a).primary {
+    background: var(--magical-primary-60);
+    color: white;
+    border-color: transparent;
+}
+
+:is(button, a).primary:is(:focus, :hover:not(:disabled)) {
+    background: var(--magical-primary-70);
+}
+
+:is(button, a).primary:hover:active {
+    background: var(--magical-primary-80);
+}
+
+/** Secondary Buttons */
+
+:is(button, a).secondary {
+    background: transparent;
+    border-color: var(--magical-primary-60);
+    color: var(--magical-primary-60);
+}
+
+:is(button, a).secondary:is(:focus, :hover:not(:disabled)) {
+    background: rgb(0 102 255 / 15%);
+}
+
+:is(button, a).secondary:hover:active {
+    background: var(--magical-primary-20);
+}
+
+button:is(.secondary):disabled {
+    border-color: var(--magical-gray-60);
+    color: var(--magical-gray-60);
+}
+
+/** Tertiary buttons */
+
+:is(button, a):is(.tertiary, .tertiary-muted) {
+    background: none;
+    color: var(--magical-primary-60);
+    font-size: var(--magical-font-size-small);
+    border-color: transparent;
+    text-decoration: none;
+}
+
+:is(button, a).tertiary-muted {
+    color: var(--magical-gray-60);
+}
+
+:is(button, a):is(.tertiary, .tertiary-muted):is(:focus, :hover:not(:disabled)) {
+    color: var(--magical-primary-60);
+    background: rgb(0 102 255 / 15%);
+    text-decoration: none;
+}
+
+:is(button, a):is(.tertiary, .tertiary-muted):hover:active {
+    color: var(--magical-primary-60);
+    background: var(--magical-primary-20);
+}
+
+/** Button sizes */
+
+:is(button, a).button-large {
+    border-radius: 24px;
+    font-size: var(--magical-font-size-medium);
+    line-height: calc(20 / 16);
+    padding: calc(14px - var(--magical-button-border-width)) 32px;
+}
+
+:is(button, a).button-large > svg {
+    height: 18px;
+    margin-right: 11px;
+    width: 18px;
+}
+
+:is(button, a).button-medium {
+    border-radius: 18px;
+    font-size: var(--magical-font-size-small);
+    line-height: calc(20 / 14);
+    padding: calc(8px - var(--magical-button-border-width)) 24px;
+}
+
+:is(button, a).button-medium > svg {
+    margin-right: 10px;
+}
+
+:is(button, a).button-small {
+    border-radius: 24px;
+    font-size: var(--magical-font-size-small);
+    line-height: calc(20 / 14);
+    text-align: inherit;
+    padding: calc(2px - var(--magical-button-border-width)) 16px;
+    width: auto;
+    align-items: center;
+}
+
+:is(button, a).button-small > svg {
+    margin-right: 6px;
+}
+
+.full-width {
+    width: 100%
+}
+
+:is(button, a).button--icon-only {
+    padding: 4px;
+}
+
+:is(button, a).button--icon-only svg {
+    margin: 0;
+}
+
+:is(button, a).content-width {
+    width: fit-content;
+    margin-bottom: 16px;
+}
+
+:is(button, a).no-margin {
+    margin: 0;
+}
